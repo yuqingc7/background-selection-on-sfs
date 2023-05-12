@@ -1,0 +1,34 @@
+initialize() {
+	
+	
+	initializeRecombinationRate(0);
+	initializeMutationType("m0",0.5,"f", 0); //neutral mutations 
+	initializeMutationType("m1", 0, "f", -0.001);//deleterious mutations
+	
+	//m2.convertToSubstitution = F;
+	//m1.convertToSubstitution = F;
+	//m0.convertToSubstitution = F;
+	
+	//MUTATION RATE
+	initializeMutationRate(1e-8);
+	
+	//GENOMIC ELEMENT TYPES
+	initializeGenomicElementType("g1", c(m0,m1), c(0.9833, 0.0067));//genomic element type of non-exonic locus
+	
+	//CHORMOSOME ORGANIZATION
+	initializeGenomicElement(g1,1,172126628);
+	
+	//OUTPUT PATH
+	defineConstant("path", "/workdir/yc2644/6910_project/slim_output");
+
+}
+
+//DEMOGRAPHY AND STRUCTURE
+1 early() {
+	defineConstant("simID",getSeed());
+	sim.addSubpop("p1", 1000);
+}
+
+10000 late() { sim.outputMutations(sim.mutationsOfType(m0), path+"/chr6_run1_gen100000_m0_"+simID+".txt");} //neutral
+10000 late() { sim.outputMutations(sim.mutationsOfType(m1), path+"/chr6_run1_gen100000_m1_"+simID+".txt");} //deleterious
+

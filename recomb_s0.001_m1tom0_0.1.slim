@@ -1,0 +1,50 @@
+initialize() {
+	
+	//RECOMBINATION RATE
+	//initializeRecombinationRate(0);
+	lines = readFile("/fs/cbsubscb18/storage/Ziqing/Data/1KG/1000GP_Phase3/genetic_map_chr6_combined_b37.txt");
+ 	rates = NULL;
+	ends = NULL;
+	for (line in lines)
+	{
+		if (line==lines[0]){
+			next;
+		}
+		components = strsplit(line, " ");
+		ends = c(ends, asInteger(components[0]));
+ 		rates = c(rates, asFloat(components[1]));
+	}
+ 
+ 	rates = rates * 1e-8;
+	initializeRecombinationRate(rates, ends);
+
+
+	initializeMutationType("m0",0.5,"f", 0); //neutral mutations 
+	initializeMutationType("m1", 0, "f", -0.001);//deleterious mutations
+	
+	//m2.convertToSubstitution = F;
+	//m1.convertToSubstitution = F;
+	//m0.convertToSubstitution = F;
+	
+	//MUTATION RATE
+	initializeMutationRate(6e-8);
+	
+	//GENOMIC ELEMENT TYPES
+	initializeGenomicElementType("g1", c(m0,m1), c(0.9833, 0.0067));//genomic element type of non-exonic locus
+	
+	//CHORMOSOME ORGANIZATION
+	initializeGenomicElement(g1,1,171011218);
+	
+	//OUTPUT PATH
+	defineConstant("path", "/fs/cbsubscb18/storage/Ziqing/6910_project");
+
+}
+
+//DEMOGRAPHY AND STRUCTURE
+1 early() {
+	defineConstant("simID",getSeed());
+	sim.addSubpop("p1", 1000);
+}
+
+10000 late() { sim.outputMutations(sim.mutationsOfType(m0), path+"/chr6_run1_gen10000_m0_s1e-3_"+simID+".txt");} //neutral
+10000 late() { sim.outputMutations(sim.mutationsOfType(m1), path+"/chr6_run1_gen10000_m1_s1e-3_"+simID+".txt");} //deleterious
